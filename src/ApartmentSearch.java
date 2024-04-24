@@ -24,32 +24,33 @@ public class ApartmentSearch {
         Map<String, Set<String>> cityBrokers = new HashMap<>();
         Set<String> citiesWMostListings = new HashSet<>();
 
-        try (FileWriter writer = new FileWriter(outputFile)){
+        try (FileWriter writer = new FileWriter(outputFile)) {
 
-            File file = new File("testData_Apartments.txt");
+            Path resource = Paths.get("src", "bg");
+            String absolutepath = resource.toFile().getAbsolutePath();
+            File file = new File(absolutepath + "/testData_Apartments.txt");
             sc = new Scanner(file);
 
-            String line;
-            while (!(line = sc.nextLine()).equalsIgnoreCase("gotowo!")) {
-                sc = new Scanner(line);
+            while (sc.hasNext()) {
+
                 String city = sc.next().trim();
                 int rooms = sc.nextInt();
                 int sqrmeters = sc.nextInt();
                 int price = sc.nextInt();
-                String phone = sc.next(); 
+                String phone = sc.next();
 
-            if (rooms == minRooms && sqrmeters > minsqrmeters) {
-                cityBrokers.computeIfAbsent(city, k -> new HashSet<>()).add(phone);
-                citiesWMostListings.add(city);
-            }
+                if (rooms == minRooms && sqrmeters > minsqrmeters) {
+                    cityBrokers.computeIfAbsent(city, k -> new HashSet<>()).add(phone);
+                    citiesWMostListings.add(city);
+                }
             }
             boolean anyRes = false;
-            for (String city: cities) {
-                if(cityBrokers.containsKey(city)) {
-                    anyRes= true;
+            for (String city : cities) {
+                if (cityBrokers.containsKey(city)) {
+                    anyRes = true;
                     writer.write("Grad:" + city);
                     int count = 0;
-                    for (String broker: cityBrokers.get(city)) {
+                    for (String broker : cityBrokers.get(city)) {
                         writer.write(broker + "/n");
                         count++;
                         if (count == maxResults) {
@@ -59,13 +60,13 @@ public class ApartmentSearch {
                     writer.write("/n");
                 }
             }
-            if(!anyRes) {
+            if (!anyRes) {
                 throw new UnsuitableApartmentsException("Nqma apartamenti, spete na ulicata :(");
             }
             int maxAparm = 0;
-            for (String city: citiesWMostListings) {
-                int count= cityBrokers.get(city).size();
-                if(count >maxAparm){
+            for (String city : citiesWMostListings) {
+                int count = cityBrokers.get(city).size();
+                if (count > maxAparm) {
                     maxAparm = count;
                     citiesWMostListings.clear();
                     citiesWMostListings.add(city);
@@ -73,11 +74,15 @@ public class ApartmentSearch {
                     citiesWMostListings.add(city);
                 }
             }
-            writer.write("Gradowe s naj mn apartamenti:" + String.join( ", " ,citiesWMostListings));
+            writer.write("Gradowe s naj mn apartamenti:" + String.join(", ", citiesWMostListings));
+        } catch (FileNotFoundException e) {
+            System.out.println("greshka >:(");
         } catch (IOException e) {
-            System.out.println("grshka >:(");
+            System.out.println("koj znae");
         } catch (UnsuitableApartmentsException e) {
             System.out.println(e.getMessage());
+        } finally {
+            sc.close();
         }
     }
 }
